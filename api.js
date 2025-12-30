@@ -3,15 +3,38 @@ const { Pool } = require('pg');
 const cors = require('cors');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Database connection
+// ============================================
+// DATABASE CONNECTION
+// ============================================
+// Choose ONE configuration:
+
+// OPTION 1: For LOCAL development (PostgreSQL)
+// const pool = new Pool({
+//     user: 'postgres',
+//     host: 'localhost',
+//     database: 'cricket_ranking',
+//     password: 'Ahmad2466',
+//     port: 5432,
+// });
+
+// OPTION 2: For PRODUCTION (Neon/Supabase/any cloud DB)
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'cricket_ranking',
-    password: 'Ahmad2466',
-    port: 5432,
+    connectionString: process.env.DATABASE_URL || 'postgres://postgres:Ahmad2466@localhost:5432/cricket_ranking',
+    ssl: process.env.DATABASE_URL ? {
+        rejectUnauthorized: false
+    } : false
+});
+
+// Test connection
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) {
+        console.error('❌ Database connection failed:', err.message);
+    } else {
+        console.log('✅ Database connected successfully!');
+        console.log('⏰ Server time:', res.rows[0].now);
+    }
 });
 
 app.use(cors());
@@ -113,20 +136,20 @@ app.post('/api/players', async (req, res) => {
 app.delete('/api/players/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // Check if player exists
         const playerCheck = await pool.query('SELECT name FROM players WHERE id = $1', [id]);
-        
+
         if (playerCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Player not found' });
         }
-        
+
         // Delete player (CASCADE will delete all related records)
         await pool.query('DELETE FROM players WHERE id = $1', [id]);
-        
-        res.json({ 
-            success: true, 
-            message: `Player "${playerCheck.rows[0].name}" deleted successfully` 
+
+        res.json({
+            success: true,
+            message: `Player "${playerCheck.rows[0].name}" deleted successfully`
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -343,7 +366,6 @@ app.get('/api/rankings/batting', async (req, res) => {
                         THEN ROUND((COALESCE(SUM(b.runs), 0)::FLOAT / COALESCE(SUM(b.balls), 0) * 100)::numeric, 2)
                         ELSE 0 
                    END as strike_rate,
-                   -- Calculate batting rating
                    (COALESCE(SUM(b.runs), 0) + 
                     (COALESCE(SUM(b.fours), 0) * 1) + 
                     (COALESCE(SUM(b.sixes), 0) * 2) +
@@ -398,7 +420,6 @@ app.get('/api/rankings/bowling', async (req, res) => {
                         THEN ROUND((COALESCE(SUM(bo.runs_conceded), 0)::FLOAT / (COALESCE(SUM(bo.balls), 0) / 6.0))::numeric, 2)
                         ELSE 0 
                    END as economy,
-                   -- Calculate bowling rating
                    (COALESCE(SUM(bo.wickets), 0) * 25 +
                     CASE 
                         WHEN COALESCE(SUM(bo.balls), 0) > 0 AND 
@@ -448,7 +469,6 @@ app.get('/api/rankings/fielding', async (req, res) => {
                    COALESCE(SUM(f.catches), 0) as catches,
                    COALESCE(SUM(f.runouts), 0) as runouts,
                    COALESCE(SUM(f.stumpings), 0) as stumpings,
-                   -- Calculate fielding rating
                    ((COALESCE(SUM(f.catches), 0) * 8) + 
                     (COALESCE(SUM(f.runouts), 0) * 12) + 
                     (COALESCE(SUM(f.stumpings), 0) * 15)) as fielding_rating
@@ -482,22 +502,17 @@ app.get('/api/rankings/allrounder', async (req, res) => {
 
         let query = `
             SELECT p.*,
-                   -- Batting stats
                    COALESCE(SUM(b.runs), 0) as total_runs,
                    COALESCE(SUM(b.balls), 0) as total_balls,
-                   -- Bowling stats
                    COALESCE(SUM(bo.wickets), 0) as wickets,
                    COALESCE(SUM(bo.balls), 0) as bowling_balls,
                    COALESCE(SUM(bo.runs_conceded), 0) as runs_conceded,
-                   -- Fielding stats
                    COALESCE(SUM(f.catches), 0) as catches,
                    COALESCE(SUM(f.runouts), 0) as runouts,
                    COALESCE(SUM(f.stumpings), 0) as stumpings,
-                   -- Calculate ratings
                    (COALESCE(SUM(b.runs), 0) + (COALESCE(SUM(b.fours), 0) * 1) + (COALESCE(SUM(b.sixes), 0) * 2)) as batting_rating,
                    (COALESCE(SUM(bo.wickets), 0) * 25) as bowling_rating,
                    ((COALESCE(SUM(f.catches), 0) * 8) + (COALESCE(SUM(f.runouts), 0) * 12) + (COALESCE(SUM(f.stumpings), 0) * 15)) as fielding_rating,
-                   -- All-rounder rating
                    ((COALESCE(SUM(b.runs), 0) + (COALESCE(SUM(b.fours), 0) * 1) + (COALESCE(SUM(b.sixes), 0) * 2)) * 0.4 +
                     (COALESCE(SUM(bo.wickets), 0) * 25) * 0.4 +
                     ((COALESCE(SUM(f.catches), 0) * 8) + (COALESCE(SUM(f.runouts), 0) * 12) + (COALESCE(SUM(f.stumpings), 0) * 15)) * 0.2) as allrounder_rating
@@ -537,18 +552,14 @@ app.get('/api/rankings/overall', async (req, res) => {
         let query = `
             SELECT p.*,
                    COUNT(DISTINCT COALESCE(b.match_id, bo.match_id, f.match_id)) as matches,
-                   -- Stats
                    COALESCE(SUM(b.runs), 0) as total_runs,
                    COALESCE(SUM(bo.wickets), 0) as wickets,
-                   -- Individual ratings
                    (COALESCE(SUM(b.runs), 0) + (COALESCE(SUM(b.fours), 0) * 1) + (COALESCE(SUM(b.sixes), 0) * 2)) as batting_rating,
                    (COALESCE(SUM(bo.wickets), 0) * 25) as bowling_rating,
                    ((COALESCE(SUM(f.catches), 0) * 8) + (COALESCE(SUM(f.runouts), 0) * 12) + (COALESCE(SUM(f.stumpings), 0) * 15)) as fielding_rating,
-                   -- All-rounder rating
                    ((COALESCE(SUM(b.runs), 0) + (COALESCE(SUM(b.fours), 0) * 1) + (COALESCE(SUM(b.sixes), 0) * 2)) * 0.4 +
                     (COALESCE(SUM(bo.wickets), 0) * 25) * 0.4 +
                     ((COALESCE(SUM(f.catches), 0) * 8) + (COALESCE(SUM(f.runouts), 0) * 12) + (COALESCE(SUM(f.stumpings), 0) * 15)) * 0.2) as allrounder_rating,
-                   -- Overall rating
                    ((COALESCE(SUM(b.runs), 0) + (COALESCE(SUM(b.fours), 0) * 1) + (COALESCE(SUM(b.sixes), 0) * 2)) * 0.35 +
                     (COALESCE(SUM(bo.wickets), 0) * 25) * 0.35 +
                     ((COALESCE(SUM(f.catches), 0) * 8) + (COALESCE(SUM(f.runouts), 0) * 12) + (COALESCE(SUM(f.stumpings), 0) * 15)) * 0.15 +
@@ -592,7 +603,7 @@ app.get('/api/stats/top-performers', async (req, res) => {
     try {
         const { year } = req.query;
         const params = [];
-        
+
         let yearFilter = '';
         if (year && year !== 'all') {
             yearFilter = ' AND EXTRACT(YEAR FROM m.match_date) = $1';
@@ -655,26 +666,9 @@ app.get('/api/stats/top-performers', async (req, res) => {
     }
 });
 
-
-const { Pool } = require('pg');
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgres://postgres.abcdefghijk:MyPass123@db.seas.supabase.co:5432/postgres',
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
-
-// Test connection
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('❌ Database error:', err);
-    } else {
-        console.log('✅ Supabase connected!');
-    }
-});
-
-// Start server
+// ============================================
+// START SERVER
+// ============================================
 app.listen(port, () => {
     console.log(`🏏 Cricket Ranking API running on http://localhost:${port}`);
 });
