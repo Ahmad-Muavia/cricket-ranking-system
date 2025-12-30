@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Cricket Ranking System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #00b894;
+            --secondary: #0984e3;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+            --white: #ffffff;
+            --success: #00b894;
+            --danger: #d63031;
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            border: none;
+            background: var(--light);
+            color: var(--dark);
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95em;
+        }
+        
+        input, select, textarea {
+            padding: 12px 18px;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
+        
+        .btn {
+            padding: 14px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #00a885;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .player-card {
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .player-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .player-card.selected {
+            border-color: var(--primary);
+            background: rgba(0, 184, 148, 0.1);
+        }
+        
+        .performance-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+        }
+        
+        .performance-section h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+        
+        .alert-danger {
+            background: rgba(214, 48, 49, 0.1);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #playersList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card h3 {
+            margin-bottom: 10px;
+        }
+        
+        .manage-player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .manage-player-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+        
+        .player-details {
+            flex: 1;
+        }
+        
+        .player-details h4 {
+            margin: 0;
+            color: var(--dark);
+            font-size: 1.1em;
+        }
+        
+        .player-details p {
+            margin: 5px 0 0 0;
+            color: #636e72;
+            font-size: 0.9em;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        .btn-danger:active {
+            transform: scale(0.95);
+        }
+        
+        .performance-data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .performance-data-item:hover {
+            background: #e9ecef;
+        }
+        
+        .performance-info {
+            flex: 1;
+        }
+        
+        .performance-info strong {
+            color: var(--dark);
+            font-size: 1.1em;
+        }
+        
+        .performance-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #636e72;
+        }
+        
+        .performance-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-edit {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-edit:hover {
+            background: #0889cc;
+            transform: scale(1.05);
+        }
+        
+        .btn-delete-small {
+            background: var(--danger);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-delete-small:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #636e72;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏏 STELLAR SLAYERS - Admin Panel</h1>
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('players')">Players</button>
+                <button class="tab" onclick="showTab('matches')">Matches</button>
+                <button class="tab" onclick="showTab('performance')">Performance Entry</button>
+                <button class="tab" onclick="showTab('manageData')">Manage Data</button>
+            </div>
+        </header>
+        
+        <!-- Players Tab -->
+        <div id="players" class="tab-content active">
+            <h2>Add New Player</h2>
+            <form id="playerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Player Name *</label>
+                        <input type="text" id="playerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Batting Style</label>
+                        <select id="battingStyle">
+                            <option value="">Select</option>
+                            <option value="Right Hand Bat">Right Hand Bat</option>
+                            <option value="Left Hand Bat">Left Hand Bat</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Bowling Style</label>
+                        <select id="bowlingStyle">
+                            <option value="">Select</option>
+                            <option value="Right Arm Fast">Right Arm Fast</option>
+                            <option value="Left Arm Fast">Left Arm Fast</option>
+                            <option value="Left Arm Medium">Left Arm Medium</option>
+                            <option value="Right Arm Medium">Right Arm Medium</option>
+                            <option value="Off Spin">Off Spin</option>
+                            <option value="Leg Spin">Leg Spin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Role *</label>
+                        <select id="role" required>
+                            <option value="">Select</option>
+                            <option value="Batsman">Batsman</option>
+                            <option value="Bowler">Bowler</option>
+                            <option value="All-Rounder">All-Rounder</option>
+                            <option value="Wicket-Keeper">Wicket-Keeper</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Player</button>
+            </form>
+            
+            <div id="playerAlert" class="alert hidden"></div>
+            
+            <!-- Manage Players Section -->
+            <div style="margin-top: 50px;">
+                <h2>Manage Players</h2>
+                <div id="managePlayersList" style="margin-top: 20px;">
+                    <div class="loading">Loading players...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Matches Tab -->
+        <div id="matches" class="tab-content">
+            <h2>Create New Match</h2>
+            <form id="matchForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Match Date *</label>
+                        <input type="date" id="matchDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Overs *</label>
+                        <input type="number" id="overs" step="0.1" required placeholder="e.g., 10.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Venue</label>
+                        <input type="text" id="venue" placeholder="e.g., Gaddafi Stadium">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Match</button>
+            </form>
+            
+            <div id="matchAlert" class="alert hidden"></div>
+        </div>
+        
+        <!-- Performance Tab -->
+        <div id="performance" class="tab-content">
+            <div class="stats-card">
+                <h3>Step 1: Select Match</h3>
+                <select id="matchSelect" onchange="loadPlayers()">
+                    <option value="">Choose a match...</option>
+                </select>
+            </div>
+            
+            <div id="performanceForm" class="hidden">
+                <div class="stats-card">
+                    <h3>Step 2: Select Player</h3>
+                    <div id="playersList" class="player-grid"></div>
+                </div>
+                
+                <div id="entryForm" class="hidden">
+                    <div class="performance-section">
+                        <h3>🏏 Batting Performance</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Runs</label>
+                                <input type="number" id="runs" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Balls</label>
+                                <input type="number" id="balls" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Fours</label>
+                                <input type="number" id="fours" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Sixes</label>
+                                <input type="number" id="sixes" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Out?</label>
+                                <select id="out">
+                                    <option value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-section">
+                        <h3>🎯 Bowling Performance</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Balls Bowled</label>
+                                <input type="number" id="bowlingBalls" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Runs Conceded</label>
+                                <input type="number" id="runsConceded" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Wickets</label>
+                                <input type="number" id="wickets" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-section">
+                        <h3>🧤 Fielding Performance</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Catches</label>
+                                <input type="number" id="catches" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Run Outs</label>
+                                <input type="number" id="runouts" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Stumpings</label>
+                                <input type="number" id="stumpings" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="submitPerformance()" class="btn btn-primary">Save Performance</button>
+                </div>
+            </div>
+            
+            <div id="performanceAlert" class="alert hidden"></div>
+        </div>
+        
+        <!-- Manage Data Tab -->
+        <div id="manageData" class="tab-content">
+            <h2>Manage Performance Data</h2>
+            
+            <div class="form-group">
+                <label>Select Match to View/Edit Data</label>
+                <select id="manageMatchSelect" onchange="loadMatchPerformances()">
+                    <option value="">Choose a match...</option>
+                </select>
+            </div>
+            
+            <div id="performanceDataSection" class="hidden" style="margin-top: 30px;">
+                <h3>Performance Data for Selected Match</h3>
+                
+                <div style="margin-top: 20px;">
+                    <h4>🏏 Batting Performances</h4>
+                    <div id="battingDataList"></div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4>🎯 Bowling Performances</h4>
+                    <div id="bowlingDataList"></div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4>🧤 Fielding Performances</h4>
+                    <div id="fieldingDataList"></div>
+                </div>
+            </div>
+            
+            <div id="manageDataAlert" class="alert hidden"></div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <h3 id="editModalTitle">Edit Performance</h3>
+            <div id="editModalContent"></div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let selectedPlayer = null;
+        let selectedMatch = null;
+        
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'performance') {
+                loadMatches();
+            } else if (tabName === 'players') {
+                loadAllPlayers();
+            } else if (tabName === 'manageData') {
+                loadMatchesForManagement();
+            }
+        }
+        
+        // Add Player
+        document.getElementById('playerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('playerName').value,
+                batting_style: document.getElementById('battingStyle').value,
+                bowling_style: document.getElementById('bowlingStyle').value,
+                role: document.getElementById('role').value,
+                photo_url: null
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/players`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('playerAlert', 'Player added successfully!', 'success');
+                    document.getElementById('playerForm').reset();
+                    loadAllPlayers(); // Reload the players list
+                } else {
+                    showAlert('playerAlert', 'Error adding player', 'danger');
+                }
+            } catch (err) {
+                showAlert('playerAlert', 'Connection error', 'danger');
+            }
+        });
+        
+        // Add Match
+        document.getElementById('matchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                match_date: document.getElementById('matchDate').value,
+                overs: parseFloat(document.getElementById('overs').value),
+                venue: document.getElementById('venue').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/matches`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('matchAlert', 'Match created successfully!', 'success');
+                    document.getElementById('matchForm').reset();
+                } else {
+                    showAlert('matchAlert', 'Error creating match', 'danger');
+                }
+            } catch (err) {
+                showAlert('matchAlert', 'Connection error', 'danger');
+            }
+        });
+        
+        // Load Matches
+        async function loadMatches() {
+            try {
+                const response = await fetch(`${API_URL}/matches`);
+                const matches = await response.json();
+                
+                const select = document.getElementById('matchSelect');
+                select.innerHTML = '<option value="">Choose a match...</option>';
+                
+                matches.forEach(match => {
+                    const option = document.createElement('option');
+                    option.value = match.id;
+                    option.textContent = `${match.match_date} - ${match.venue} (${match.overs} overs)`;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Error loading matches:', err);
+            }
+        }
+        
+        // Load Players
+        async function loadPlayers() {
+            const matchId = document.getElementById('matchSelect').value;
+            if (!matchId) {
+                document.getElementById('performanceForm').classList.add('hidden');
+                return;
+            }
+            
+            selectedMatch = matchId;
+            document.getElementById('performanceForm').classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`${API_URL}/players`);
+                const players = await response.json();
+                
+                const container = document.getElementById('playersList');
+                container.innerHTML = '';
+                
+                players.forEach(player => {
+                    const card = document.createElement('div');
+                    card.className = 'player-card';
+                    card.innerHTML = `
+                        <div style="font-weight: 600; font-size: 1.1em;">${player.name}</div>
+                        <div style="font-size: 0.9em; color: #636e72; margin-top: 5px;">${player.role}</div>
+                    `;
+                    card.onclick = () => selectPlayer(player, card);
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error loading players:', err);
+            }
+        }
+        
+        // Select Player
+        function selectPlayer(player, cardElement) {
+            document.querySelectorAll('.player-card').forEach(c => c.classList.remove('selected'));
+            cardElement.classList.add('selected');
+            selectedPlayer = player.id;
+            document.getElementById('entryForm').classList.remove('hidden');
+        }
+        
+        // Submit Performance
+        async function submitPerformance() {
+            if (!selectedMatch || !selectedPlayer) {
+                showAlert('performanceAlert', 'Please select match and player', 'danger');
+                return;
+            }
+            
+            // Batting
+            const battingData = {
+                match_id: selectedMatch,
+                player_id: selectedPlayer,
+                runs: parseInt(document.getElementById('runs').value),
+                balls: parseInt(document.getElementById('balls').value),
+                fours: parseInt(document.getElementById('fours').value),
+                sixes: parseInt(document.getElementById('sixes').value),
+                out: document.getElementById('out').value === 'true'
+            };
+            
+            // Bowling
+            const bowlingData = {
+                match_id: selectedMatch,
+                player_id: selectedPlayer,
+                balls: parseInt(document.getElementById('bowlingBalls').value),
+                runs_conceded: parseInt(document.getElementById('runsConceded').value),
+                wickets: parseInt(document.getElementById('wickets').value)
+            };
+            
+            // Fielding
+            const fieldingData = {
+                match_id: selectedMatch,
+                player_id: selectedPlayer,
+                catches: parseInt(document.getElementById('catches').value),
+                runouts: parseInt(document.getElementById('runouts').value),
+                stumpings: parseInt(document.getElementById('stumpings').value)
+            };
+            
+            try {
+                await fetch(`${API_URL}/batting`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(battingData)
+                });
+                
+                await fetch(`${API_URL}/bowling`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bowlingData)
+                });
+                
+                await fetch(`${API_URL}/fielding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fieldingData)
+                });
+                
+                showAlert('performanceAlert', 'Performance saved successfully! Rankings updated.', 'success');
+                
+                // Reset form
+                document.getElementById('runs').value = 0;
+                document.getElementById('balls').value = 0;
+                document.getElementById('fours').value = 0;
+                document.getElementById('sixes').value = 0;
+                document.getElementById('out').value = 'false';
+                document.getElementById('bowlingBalls').value = 0;
+                document.getElementById('runsConceded').value = 0;
+                document.getElementById('wickets').value = 0;
+                document.getElementById('catches').value = 0;
+                document.getElementById('runouts').value = 0;
+                document.getElementById('stumpings').value = 0;
+                
+            } catch (err) {
+                showAlert('performanceAlert', 'Error saving performance', 'danger');
+            }
+        }
+        
+        // Show Alert
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.classList.remove('hidden');
+            
+            setTimeout(() => {
+                alert.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // Load All Players for Management
+        async function loadAllPlayers() {
+            try {
+                const response = await fetch(`${API_URL}/players`);
+                const players = await response.json();
+                
+                const container = document.getElementById('managePlayersList');
+                
+                if (players.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #636e72;">No players found. Add some players first!</p>';
+                    return;
+                }
+                
+                container.innerHTML = players.map(player => `
+                    <div class="manage-player-item">
+                        <div class="player-details">
+                            <h4>${player.name}</h4>
+                            <p>
+                                <strong>Role:</strong> ${player.role || 'N/A'} | 
+                                <strong>Batting:</strong> ${player.batting_style || 'N/A'} | 
+                                <strong>Bowling:</strong> ${player.bowling_style || 'N/A'}
+                            </p>
+                        </div>
+                        <button class="btn-danger" onclick="deletePlayer(${player.id}, '${player.name}')">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Error loading players:', err);
+                document.getElementById('managePlayersList').innerHTML = 
+                    '<p style="color: var(--danger);">Error loading players. Please check if API is running.</p>';
+            }
+        }
+        
+        // Delete Player
+        async function deletePlayer(playerId, playerName) {
+            if (!confirm(`Are you sure you want to delete "${playerName}"?\n\nThis will also delete all their performance data!`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/players/${playerId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showAlert('playerAlert', `Player "${playerName}" deleted successfully!`, 'success');
+                    loadAllPlayers(); // Reload the list
+                } else {
+                    const error = await response.json();
+                    showAlert('playerAlert', `Error: ${error.error || 'Failed to delete player'}`, 'danger');
+                }
+            } catch (err) {
+                showAlert('playerAlert', 'Connection error. Please check if API is running.', 'danger');
+            }
+        }
+        
+        // Load players when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllPlayers();
+        });
+        
+        // ============================================
+        // MANAGE PERFORMANCE DATA FUNCTIONS
+        // ============================================
+        
+        let currentEditType = null;
+        let currentEditId = null;
+        
+        // Load matches for management dropdown
+        async function loadMatchesForManagement() {
+            try {
+                const response = await fetch(`${API_URL}/matches`);
+                const matches = await response.json();
+                
+                const select = document.getElementById('manageMatchSelect');
+                select.innerHTML = '<option value="">Choose a match...</option>';
+                
+                matches.forEach(match => {
+                    const option = document.createElement('option');
+                    option.value = match.id;
+                    option.textContent = `${match.match_date} - ${match.venue} (${match.overs} overs)`;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Error loading matches:', err);
+            }
+        }
+        
+        // Load all performances for selected match
+        async function loadMatchPerformances() {
+            const matchId = document.getElementById('manageMatchSelect').value;
+            
+            if (!matchId) {
+                document.getElementById('performanceDataSection').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('performanceDataSection').classList.remove('hidden');
+            
+            try {
+                // Load batting data
+                const battingResponse = await fetch(`${API_URL}/batting/match/${matchId}`);
+                const battingData = await battingResponse.json();
+                displayBattingData(battingData);
+                
+                // Load bowling data
+                const bowlingResponse = await fetch(`${API_URL}/bowling/match/${matchId}`);
+                const bowlingData = await bowlingResponse.json();
+                displayBowlingData(bowlingData);
+                
+                // Load fielding data
+                const fieldingResponse = await fetch(`${API_URL}/fielding/match/${matchId}`);
+                const fieldingData = await fieldingResponse.json();
+                displayFieldingData(fieldingData);
+                
+            } catch (err) {
+                console.error('Error loading performance data:', err);
+            }
+        }
+        
+        // Display batting data
+        function displayBattingData(data) {
+            const container = document.getElementById('battingDataList');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-state">No batting data for this match</div>';
+                return;
+            }
+            
+            container.innerHTML = data.map(item => `
+                <div class="performance-data-item">
+                    <div class="performance-info">
+                        <strong>${item.name}</strong>
+                        <div class="performance-stats">
+                            <span>Runs: ${item.runs}</span>
+                            <span>Balls: ${item.balls}</span>
+                            <span>4s: ${item.fours}</span>
+                            <span>6s: ${item.sixes}</span>
+                            <span>Out: ${item.out ? 'Yes' : 'No'}</span>
+                        </div>
+                    </div>
+                    <div class="performance-actions">
+                        <button class="btn-edit" onclick="editBatting(${item.id}, ${item.player_id}, ${item.match_id}, ${item.runs}, ${item.balls}, ${item.fours}, ${item.sixes}, ${item.out})">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn-delete-small" onclick="deletePerformance('batting', ${item.id}, '${item.name}')">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Display bowling data
+        function displayBowlingData(data) {
+            const container = document.getElementById('bowlingDataList');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-state">No bowling data for this match</div>';
+                return;
+            }
+            
+            container.innerHTML = data.map(item => `
+                <div class="performance-data-item">
+                    <div class="performance-info">
+                        <strong>${item.name}</strong>
+                        <div class="performance-stats">
+                            <span>Balls: ${item.balls}</span>
+                            <span>Runs Conceded: ${item.runs_conceded}</span>
+                            <span>Wickets: ${item.wickets}</span>
+                        </div>
+                    </div>
+                    <div class="performance-actions">
+                        <button class="btn-edit" onclick="editBowling(${item.id}, ${item.player_id}, ${item.match_id}, ${item.balls}, ${item.runs_conceded}, ${item.wickets})">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn-delete-small" onclick="deletePerformance('bowling', ${item.id}, '${item.name}')">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Display fielding data
+        function displayFieldingData(data) {
+            const container = document.getElementById('fieldingDataList');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-state">No fielding data for this match</div>';
+                return;
+            }
+            
+            container.innerHTML = data.map(item => `
+                <div class="performance-data-item">
+                    <div class="performance-info">
+                        <strong>${item.name}</strong>
+                        <div class="performance-stats">
+                            <span>Catches: ${item.catches}</span>
+                            <span>Run-outs: ${item.runouts}</span>
+                            <span>Stumpings: ${item.stumpings}</span>
+                        </div>
+                    </div>
+                    <div class="performance-actions">
+                        <button class="btn-edit" onclick="editFielding(${item.id}, ${item.player_id}, ${item.match_id}, ${item.catches}, ${item.runouts}, ${item.stumpings})">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn-delete-small" onclick="deletePerformance('fielding', ${item.id}, '${item.name}')">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Edit batting
+        function editBatting(id, playerId, matchId, runs, balls, fours, sixes, out) {
+            currentEditType = 'batting';
+            currentEditId = { id, player_id: playerId, match_id: matchId };
+            
+            document.getElementById('editModalTitle').textContent = 'Edit Batting Performance';
+            document.getElementById('editModalContent').innerHTML = `
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Runs</label>
+                        <input type="number" id="editRuns" value="${runs}">
+                    </div>
+                    <div class="form-group">
+                        <label>Balls</label>
+                        <input type="number" id="editBalls" value="${balls}">
+                    </div>
+                    <div class="form-group">
+                        <label>Fours</label>
+                        <input type="number" id="editFours" value="${fours}">
+                    </div>
+                    <div class="form-group">
+                        <label>Sixes</label>
+                        <input type="number" id="editSixes" value="${sixes}">
+                    </div>
+                    <div class="form-group">
+                        <label>Out</label>
+                        <select id="editOut">
+                            <option value="false" ${!out ? 'selected' : ''}>Not Out</option>
+                            <option value="true" ${out ? 'selected' : ''}>Out</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        // Edit bowling
+        function editBowling(id, playerId, matchId, balls, runsConceded, wickets) {
+            currentEditType = 'bowling';
+            currentEditId = { id, player_id: playerId, match_id: matchId };
+            
+            document.getElementById('editModalTitle').textContent = 'Edit Bowling Performance';
+            document.getElementById('editModalContent').innerHTML = `
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Balls</label>
+                        <input type="number" id="editBowlingBalls" value="${balls}">
+                    </div>
+                    <div class="form-group">
+                        <label>Runs Conceded</label>
+                        <input type="number" id="editRunsConceded" value="${runsConceded}">
+                    </div>
+                    <div class="form-group">
+                        <label>Wickets</label>
+                        <input type="number" id="editWickets" value="${wickets}">
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        // Edit fielding
+        function editFielding(id, playerId, matchId, catches, runouts, stumpings) {
+            currentEditType = 'fielding';
+            currentEditId = { id, player_id: playerId, match_id: matchId };
+            
+            document.getElementById('editModalTitle').textContent = 'Edit Fielding Performance';
+            document.getElementById('editModalContent').innerHTML = `
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Catches</label>
+                        <input type="number" id="editCatches" value="${catches}">
+                    </div>
+                    <div class="form-group">
+                        <label>Run-outs</label>
+                        <input type="number" id="editRunouts" value="${runouts}">
+                    </div>
+                    <div class="form-group">
+                        <label>Stumpings</label>
+                        <input type="number" id="editStumpings" value="${stumpings}">
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        // Save edit
+        async function saveEdit() {
+            try {
+                let data = {};
+                let url = '';
+                
+                if (currentEditType === 'batting') {
+                    data = {
+                        match_id: currentEditId.match_id,
+                        player_id: currentEditId.player_id,
+                        runs: parseInt(document.getElementById('editRuns').value),
+                        balls: parseInt(document.getElementById('editBalls').value),
+                        fours: parseInt(document.getElementById('editFours').value),
+                        sixes: parseInt(document.getElementById('editSixes').value),
+                        out: document.getElementById('editOut').value === 'true'
+                    };
+                    url = `${API_URL}/batting`;
+                } else if (currentEditType === 'bowling') {
+                    data = {
+                        match_id: currentEditId.match_id,
+                        player_id: currentEditId.player_id,
+                        balls: parseInt(document.getElementById('editBowlingBalls').value),
+                        runs_conceded: parseInt(document.getElementById('editRunsConceded').value),
+                        wickets: parseInt(document.getElementById('editWickets').value)
+                    };
+                    url = `${API_URL}/bowling`;
+                } else if (currentEditType === 'fielding') {
+                    data = {
+                        match_id: currentEditId.match_id,
+                        player_id: currentEditId.player_id,
+                        catches: parseInt(document.getElementById('editCatches').value),
+                        runouts: parseInt(document.getElementById('editRunouts').value),
+                        stumpings: parseInt(document.getElementById('editStumpings').value)
+                    };
+                    url = `${API_URL}/fielding`;
+                }
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('manageDataAlert', 'Performance updated successfully!', 'success');
+                    closeEditModal();
+                    loadMatchPerformances();
+                } else {
+                    showAlert('manageDataAlert', 'Error updating performance', 'danger');
+                }
+            } catch (err) {
+                showAlert('manageDataAlert', 'Connection error', 'danger');
+            }
+        }
+        
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditType = null;
+            currentEditId = null;
+        }
+        
+        // Delete performance
+        async function deletePerformance(type, id, playerName) {
+            if (!confirm(`Delete ${type} performance for ${playerName}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/${type}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showAlert('manageDataAlert', `${type} performance deleted successfully!`, 'success');
+                    loadMatchPerformances();
+                } else {
+                    showAlert('manageDataAlert', `Error deleting ${type} performance`, 'danger');
+                }
+            } catch (err) {
+                showAlert('manageDataAlert', 'Connection error', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>

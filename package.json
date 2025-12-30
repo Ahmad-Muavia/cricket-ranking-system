@@ -1,0 +1,26 @@
+{
+  "name": "cricket-ranking-system",
+  "version": "1.0.0",
+  "description": "ICC-style Cricket Ranking System with automatic calculations",
+  "main": "api.js",
+  "scripts": {
+    "start": "node api.js",
+    "dev": "nodemon api.js"
+  },
+  "keywords": [
+    "cricket",
+    "rankings",
+    "sports",
+    "statistics"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

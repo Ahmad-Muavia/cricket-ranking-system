@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STELLAR SLAYERS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0052cc;
+            --secondary: #00a2e8;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+            --dark: #001e3c;
+            --text: #2c3e50;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --header-gradient-start: #0052cc;
+            --header-gradient-end: #00a2e8;
+        }
+
+        body.dark-mode {
+            --bg: #1a1a2e;
+            --text: #e4e4e7;
+            --dark: #0f3460;
+            --card-bg: #16213e;
+            --header-gradient-start: #16213e;
+            --header-gradient-end: #0f3460;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dark-mode .performer-card,
+        .dark-mode .rankings-section,
+        .dark-mode .dropdown-btn {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .dark-mode .rankings-table thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .rankings-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .rankings-table td {
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .dropdown-menu {
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(12px);
+        }
+
+        .dark-mode .dropdown-menu li {
+            color: var(--text);
+        }
+
+        .dark-mode .dropdown-menu li:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            right: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            width: 60px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-toggle-slider {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .dark-mode .theme-toggle-slider {
+            transform: translateX(30px);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+            color: white;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .header-top {
+            padding: 25px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.8em;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .admin-link {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .admin-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        nav {
+            display: flex;
+            gap: 0;
+            padding: 0 40px;
+            overflow-x: auto;
+        }
+
+        .nav-link {
+            padding: 20px 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.05em;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom-color: var(--gold);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-bottom-color: var(--gold);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .top-performers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .performer-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: background 0.3s ease;
+        }
+
+        .performer-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .performer-header h3 {
+            font-size: 1.5em;
+        }
+
+        .performer-list {
+            padding: 20px;
+        }
+
+        .performer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .performer-item:hover {
+            background: #f8f9fa;
+            padding-left: 10px;
+        }
+
+        .performer-item:last-child {
+            border-bottom: none;
+        }
+
+        .rankings-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .section-header h2 {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .rankings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rankings-table thead {
+            background: #f8f9fa;
+        }
+
+        .rankings-table th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rankings-table td {
+            padding: 20px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .rankings-table tbody tr {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .rankings-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .rank {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            width: 60px;
+            text-align: center;
+        }
+
+        .rank-1 {
+            color: var(--gold);
+        }
+
+        .rank-2 {
+            color: var(--silver);
+        }
+
+        .rank-3 {
+            color: var(--bronze);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .player-name:hover {
+            color: var(--primary);
+        }
+
+        .player-role {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .rating-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2em;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .header-top {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav {
+                padding: 0 10px;
+                display: flex;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+            }
+
+            nav::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+            }
+
+            .nav-link {
+                flex: 0 0 auto;
+                padding: 15px 20px;
+                font-size: 0.95em;
+            }
+
+            .rankings-table {
+                font-size: 0.9em;
+                display: block;
+                overflow-x: auto;
+            }
+
+            .rankings-table th,
+            .rankings-table td {
+                padding: 12px 8px;
+                font-size: 0.85em;
+            }
+
+            .dropdown-container {
+                margin: 15px 0;
+            }
+
+            .dropdown-btn {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+
+            .dropdown-menu {
+                font-size: 14px;
+            }
+
+            .logo {
+                font-size: 1.8em;
+            }
+
+            .top-performers {
+                grid-template-columns: 1fr;
+            }
+        }
+     .dropdown-container{
+    font-family: Arial, sans-serif;
+    background: #6868685c;
+    padding: 0px;
+}
+
+.dropdown-container {
+       /* LONG BAR */
+    position: relative;
+}
+
+.dropdown-btn {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    color: rgb(24, 23, 23);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    max-height: 0;
+    overflow-y: auto;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.dropdown-menu.show {
+    max-height: 260px;
+    opacity: 1;
+}
+
+.dropdown-menu li {
+    list-style: none;
+    padding: 12px 18px;
+    color: rgb(35, 33, 33);
+    cursor: pointer;
+}
+
+.dropdown-menu li:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo">🏏 STELLAR SLAYERS RANKING</div>
+            <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                <div class="theme-toggle-slider">
+                    <span id="themeIcon">☀️</span>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <a class="nav-link active" onclick="showPage('home')">Home</a>
+            <a class="nav-link" onclick="showPage('batting')">Batting</a>
+            <a class="nav-link" onclick="showPage('bowling')">Bowling</a>
+            <a class="nav-link" onclick="showPage('fielding')">Fielding</a>
+            <a class="nav-link" onclick="showPage('allrounder')">All-Rounder</a>
+            <a class="nav-link" onclick="showPage('overall')">Overall</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Home Page -->
+        <div class="dropdown-container">
+    <button id="dropdownBtn" class="dropdown-btn">
+        Select Year
+        <span class="arrow">⌄</span>
+    </button>
+
+    <ul id="yearDropdown" class="dropdown-menu">
+        <!-- JS se years aayenge -->
+    </ul>
+</div>
+
+
+
+        <div id="home" class="page active">
+            <h1 style="font-family: 'Rajdhani', sans-serif; font-size: 2.5em; margin-bottom: 30px; color: var(--dark);">
+                Top Performers
+            </h1>
+
+            <div class="top-performers">
+                <div class="performer-card">
+                    <div class="performer-header">
+                        <h3>🏏 Top Batsmen</h3>
+                    </div>
+                    <div class="performer-list" id="topBatsmen">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="performer-card">
+                    <div class="performer-header"
+                        style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h3>🎯 Top Bowlers</h3>
+                    </div>
+                    <div class="performer-list" id="topBowlers">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="performer-card">
+                    <div class="performer-header"
+                        style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <h3>👑 Top Overall</h3>
+                    </div>
+                    <div class="performer-list" id="topOverall">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batting Rankings -->
+        <div id="batting" class="page">
+            <div class="rankings-section">
+                <div class="section-header">
+                    <h2>🏏 Batting Rankings</h2>
+                </div>
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Rating</th>
+                            <th>Runs</th>
+                            <th>Balls</th>
+                            <th>SR</th>
+                            <th>4s/6s</th>
+                        </tr>
+                    </thead>
+                    <tbody id="battingRankings">
+                        <tr>
+                            <td colspan="7">
+                                <div class="loading">Loading rankings...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bowling Rankings -->
+        <div id="bowling" class="page">
+            <div class="rankings-section">
+                <div class="section-header">
+                    <h2>🎯 Bowling Rankings</h2>
+                </div>
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Rating</th>
+                            <th>Wickets</th>
+                            <th>Balls</th>
+                            <th>Economy</th>
+                            <th>Runs</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bowlingRankings">
+                        <tr>
+                            <td colspan="7">
+                                <div class="loading">Loading rankings...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fielding Rankings -->
+        <div id="fielding" class="page">
+            <div class="rankings-section">
+                <div class="section-header">
+                    <h2>🧤 Fielding Rankings</h2>
+                </div>
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Rating</th>
+                            <th>Catches</th>
+                            <th>Run Outs</th>
+                            <th>Stumpings</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fieldingRankings">
+                        <tr>
+                            <td colspan="6">
+                                <div class="loading">Loading rankings...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- All-Rounder Rankings -->
+        <div id="allrounder" class="page">
+            <div class="rankings-section">
+                <div class="section-header">
+                    <h2>⭐ All-Rounder Rankings</h2>
+                </div>
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Overall Rating</th>
+                            <th>Batting</th>
+                            <th>Bowling</th>
+                            <th>Fielding</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allrounderRankings">
+                        <tr>
+                            <td colspan="6">
+                                <div class="loading">Loading rankings...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Overall Rankings -->
+        <div id="overall" class="page">
+            <div class="rankings-section">
+                <div class="section-header">
+                    <h2>👑 Overall Rankings</h2>
+                </div>
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Overall Rating</th>
+                            <th>Matches</th>
+                            <th>Runs</th>
+                            <th>Wickets</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overallRankings">
+                        <tr>
+                            <td colspan="6">
+                                <div class="loading">Loading rankings...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // Theme Toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+            
+            // Save preference
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '🌙';
+            }
+        });
+
+        function showPage(pageName) {
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(pageName).classList.add('active');
+
+            switch (pageName) {
+                case 'home': loadTopPerformers(); break;
+                case 'batting': loadBattingRankings(); break;
+                case 'bowling': loadBowlingRankings(); break;
+                case 'fielding': loadFieldingRankings(); break;
+                case 'allrounder': loadAllrounderRankings(); break;
+                case 'overall': loadOverallRankings(); break;
+            }
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+
+        function viewProfile(playerId) {
+            window.location.href = `player-profile.html?id=${playerId}`;
+        }
+
+        async function loadTopPerformers() {
+            try {
+                const yearParam = selectedYear !== 'all' ? `?year=${selectedYear}` : '';
+                const response = await fetch(`${API_URL}/stats/top-performers${yearParam}`);
+                const data = await response.json();
+
+                const batsmenHtml = data.topBatsmen.map((p, i) => `
+                    <div class="performer-item" onclick="viewProfile(${p.id})">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span class="rank rank-${i + 1}">${i + 1}</span>
+                            <div>
+                                <div style="font-weight: 600;">${p.name}</div>
+                                <div style="font-size: 0.9em; color: #7f8c8d;">${p.total_runs} runs</div>
+                            </div>
+                        </div>
+                        <span class="rating-badge">${Math.round(p.batting_rating)}</span>
+                    </div>
+                `).join('');
+                document.getElementById('topBatsmen').innerHTML = batsmenHtml;
+
+                const bowlersHtml = data.topBowlers.map((p, i) => `
+                    <div class="performer-item" onclick="viewProfile(${p.id})">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span class="rank rank-${i + 1}">${i + 1}</span>
+                            <div>
+                                <div style="font-weight: 600;">${p.name}</div>
+                                <div style="font-size: 0.9em; color: #7f8c8d;">${p.wickets} wickets</div>
+                            </div>
+                        </div>
+                        <span class="rating-badge">${Math.round(p.bowling_rating)}</span>
+                    </div>
+                `).join('');
+                document.getElementById('topBowlers').innerHTML = bowlersHtml;
+
+                const overallHtml = data.topOverall.map((p, i) => `
+                    <div class="performer-item" onclick="viewProfile(${p.id})">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span class="rank rank-${i + 1}">${i + 1}</span>
+                            <div style="font-weight: 600;">${p.name}</div>
+                        </div>
+                        <span class="rating-badge">${Math.round(p.overall_rating)}</span>
+                    </div>
+                `).join('');
+                document.getElementById('topOverall').innerHTML = overallHtml;
+
+            } catch (err) {
+                console.error('Error loading top performers:', err);
+            }
+        }
+
+        async function loadBattingRankings() {
+            try {
+                const yearParam = selectedYear !== 'all' ? `?year=${selectedYear}` : '';
+                const response = await fetch(`${API_URL}/rankings/batting${yearParam}`);
+                const players = await response.json();
+
+                const html = players.map((p, i) => `
+                    <tr onclick="viewProfile(${p.id})">
+                        <td><span class="rank rank-${i + 1}">${i + 1}</span></td>
+                        <td>
+                            <div class="player-info">
+                                <div class="player-avatar">${getInitials(p.name)}</div>
+                                <div>
+                                    <div class="player-name">${p.name}</div>
+                                    <div class="player-role">${p.role || 'Player'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="rating-badge">${Math.round(p.batting_rating)}</span></td>
+                        <td>${p.total_runs}</td>
+                        <td>${p.total_balls}</td>
+                        <td>${p.strike_rate}</td>
+                        <td>${p.fours}/${p.sixes}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('battingRankings').innerHTML = html;
+            } catch (err) {
+                console.error('Error loading batting rankings:', err);
+            }
+        }
+
+        async function loadBowlingRankings() {
+            try {
+                const yearParam = selectedYear !== 'all' ? `?year=${selectedYear}` : '';
+                const response = await fetch(`${API_URL}/rankings/bowling${yearParam}`);
+                const players = await response.json();
+
+                const html = players.map((p, i) => `
+                    <tr onclick="viewProfile(${p.id})">
+                        <td><span class="rank rank-${i + 1}">${i + 1}</span></td>
+                        <td>
+                            <div class="player-info">
+                                <div class="player-avatar">${getInitials(p.name)}</div>
+                                <div>
+                                    <div class="player-name">${p.name}</div>
+                                    <div class="player-role">${p.role || 'Player'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="rating-badge">${Math.round(p.bowling_rating)}</span></td>
+                        <td>${p.wickets}</td>
+                        <td>${p.bowling_balls}</td>
+                        <td>${p.economy}</td>
+                        <td>${p.runs_conceded}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('bowlingRankings').innerHTML = html;
+            } catch (err) {
+                console.error('Error loading bowling rankings:', err);
+            }
+        }
+
+        async function loadFieldingRankings() {
+            try {
+                const yearParam = selectedYear !== 'all' ? `?year=${selectedYear}` : '';
+                const response = await fetch(`${API_URL}/rankings/fielding${yearParam}`);
+                const players = await response.json();
+
+                const html = players.map((p, i) => `
+                    <tr onclick="viewProfile(${p.id})">
+                        <td><span class="rank rank-${i + 1}">${i + 1}</span></td>
+                        <td>
+                            <div class="player-info">
+                                <div class="player-avatar">${getInitials(p.name)}</div>
+                                <div>
+                                    <div class="player-name">${p.name}</div>
+                                    <div class="player-role">${p.role || 'Player'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="rating-badge">${Math.round(p.fielding_rating)}</span></td>
+                        <td>${p.catches}</td>
+                        <td>${p.runouts}</td>
+                        <td>${p.stumpings}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('fieldingRankings').innerHTML = html;
+            } catch (err) {
+                console.error('Error loading fielding rankings:', err);
+            }
+        }
+
+        async function loadAllrounderRankings() {
+            try {
+                const yearParam = selectedYear !== 'all' ? `?year=${selectedYear}` : '';
+                const response = await fetch(`${API_URL}/rankings/allrounder${yearParam}`);
+                const players = await response.json();
+
+                const html = players.map((p, i) => `
+                    <tr onclick="viewProfile(${p.id})">
+                        <td><span class="rank rank-${i + 1}">${i + 1}</span></td>
+                        <td>
+                            <div class="player-info">
+                                <div class="player-avatar">${getInitials(p.name)}</div>
+                                <div>
+                                    <div class="player-name">${p.name}</div>
+                                    <div class="player-role">${p.role || 'Player'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="rating-badge">${Math.round(p.allrounder_rating)}</span></td>
+                        <td>${Math.round(p.batting_rating)}</td>
+                        <td>${Math.round(p.bowling_rating)}</td>
+                        <td>${Math.round(p.fielding_rating)}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('allrounderRankings').innerHTML = html;
+            } catch (err) {
+                console.error('Error loading all-rounder rankings:', err);
+            }
+        }
+
+        async function loadOverallRankings() {
+            try {
+                const yearParam = selectedYear !== 'all' ? `?year=${selectedYear}` : '';
+                const response = await fetch(`${API_URL}/rankings/overall${yearParam}`);
+                const players = await response.json();
+
+                const html = players.map((p, i) => `
+                    <tr onclick="viewProfile(${p.id})">
+                        <td><span class="rank rank-${i + 1}">${i + 1}</span></td>
+                        <td>
+                            <div class="player-info">
+                                <div class="player-avatar">${getInitials(p.name)}</div>
+                                <div>
+                                    <div class="player-name">${p.name}</div>
+                                    <div class="player-role">${p.role || 'Player'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="rating-badge">${Math.round(p.overall_rating)}</span></td>
+                        <td>${p.matches}</td>
+                        <td>${p.total_runs}</td>
+                        <td>${p.wickets}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('overallRankings').innerHTML = html;
+            } catch (err) {
+                console.error('Error loading overall rankings:', err);
+            }
+        }
+
+     
+
+// Global variable to store selected year
+let selectedYear = 'all';
+
+const btn = document.getElementById("dropdownBtn");
+const dropdown = document.getElementById("yearDropdown");
+
+let isGenerated = false;
+
+btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("show");
+
+    if (!isGenerated) {
+        generateYears();
+        isGenerated = true;
+    }
+});
+
+function generateYears() {
+    const currentYear = new Date().getFullYear();
+    const endYear = currentYear + 20;
+
+    // Add "All Years" option
+    const allYearsLi = document.createElement("li");
+    allYearsLi.textContent = "All Years";
+    allYearsLi.onclick = () => {
+        selectedYear = 'all';
+        btn.firstChild.textContent = "All Years ";
+        dropdown.classList.remove("show");
+        refreshCurrentPage();
+    };
+    dropdown.appendChild(allYearsLi);
+
+    // Add individual years
+    for (let year = currentYear; year <= endYear; year++) {
+        const li = document.createElement("li");
+        li.textContent = year;
+
+        li.onclick = () => {
+            selectedYear = year;
+            btn.firstChild.textContent = year + " ";
+            dropdown.classList.remove("show");
+            refreshCurrentPage();
+        };
+
+        dropdown.appendChild(li);
+    }
+}
+
+// Click outside → close
+document.addEventListener("click", () => {
+    dropdown.classList.remove("show");
+});
+
+// Function to refresh the current active page with selected year
+function refreshCurrentPage() {
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+        const pageId = activePage.id;
+        switch(pageId) {
+            case 'home':
+                loadTopPerformers();
+                break;
+            case 'batting':
+                loadBattingRankings();
+                break;
+            case 'bowling':
+                loadBowlingRankings();
+                break;
+            case 'fielding':
+                loadFieldingRankings();
+                break;
+            case 'allrounder':
+                loadAllrounderRankings();
+                break;
+            case 'overall':
+                loadOverallRankings();
+                break;
+        }
+    }
+}
+
+        loadTopPerformers();
+    </script>
+
+</body>
+
+</html>
